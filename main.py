@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 # from src.kafka.routers import router as router_kafka
 # from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from
+
 
 from fastapi import WebSocket
 
