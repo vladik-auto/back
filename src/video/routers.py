@@ -44,3 +44,20 @@ video_gen = mock_video()
 
 
 
+@router.websocket("/ws/")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        async with aiohttp.ClientSession() as session:
+            while True:
+                img_file = await websocket.receive_text()
+
+                # async with session.post('http://<YOLO_server_address>', data=img_file) as resp:
+                #     response = await resp.read()
+                await websocket.send_text(str(next(video_gen)))
+
+    except Exception:
+        print("websocket disconnected")
+        await websocket.close()
+    finally:
+        await websocket.close()
