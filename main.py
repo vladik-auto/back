@@ -17,15 +17,15 @@ app.include_router(router_video)
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
     response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "https://www.teste.com.br, http://localhost:3000"
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     return response
 
 origins = [
-    "https://teste.com.br",
-    "http://localhost:3000",
+
+    "http://localhost:5173",
 ]
 
 app.add_middleware(
