@@ -1,3 +1,4 @@
+import aiohttp
 from fastapi import FastAPI as FastAPIOffline
 import uvicorn
 from src.auth.routers import router as router_auth
@@ -6,6 +7,7 @@ from fastapi.testclient import TestClient
 # from src.kafka.routers import router as router_kafka
 # from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from
 
 from fastapi import WebSocket
 
@@ -39,10 +41,25 @@ app.add_middleware(
 async def root():
     return {"message": "Hello World"}
 
-
-@app.websocket("/ws/")
+@app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    try:
+        async with aiohttp.ClientSession() as session:
+            while True:
+                img_file = await websocket.receive_bytes()
+
+                # async with session.post('http://<YOLO_server_address>', data=img_file) as resp:
+                #     response = await resp.read()
+                await websocket.send_text("Hello, World!")
+
+
+
+    except Exception:
+        print("websocket disconnected")
+        await websocket.close()
+    finally:
+        await websocket.close()
 
 
 

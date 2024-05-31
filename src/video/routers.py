@@ -1,6 +1,7 @@
 from asyncio import sleep
 
 from fastapi import APIRouter
+import aiohttp
 from fastapi import BackgroundTasks
 from fastapi import Depends
 from fastapi import File
@@ -30,5 +31,16 @@ async def create_video(
 ):
     """ Add video """
     return await save_video(user, file, title, description)
+
+
+def mock_video():
+    i = 0
+    while True:
+        yield i
+        i += 1
+
+
+video_gen = mock_video()
+
 
 
