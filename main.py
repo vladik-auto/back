@@ -12,7 +12,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import WebSocket
 
 app = FastAPIOffline()
-#app.include_router(router_auth)
+app.include_router(router_auth)
 app.include_router(router_video)
 # app.include_router(router_kafka)
 
