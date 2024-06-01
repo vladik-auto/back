@@ -78,7 +78,7 @@ async def websocket_output(websocket: WebSocket):
     try:
         async with aiohttp.ClientSession() as Session:
             while True:
-                img_file = await websocket.receive_text()
+                img_file = await websocket.receive_bytes()
                 # async with Session.post('http://<YOLO_server_address>', data=img_file) as resp:
                 #     response = await resp.read()
                 # это просто для дебага
