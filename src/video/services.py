@@ -106,5 +106,25 @@ async def get_violations(
     return violations
 
 
+async def delete_employee(
+        db: AsyncSession,
+        employee_id: int
+):
+    await db.execute(delete(models.Employee).where(models.Employee.id == employee_id))
+    await db.commit()
 
+async def delete_video(
+        db: AsyncSession,
+        video_id: int
+):
+    await db.execute(delete(models.Video).where(models.Video.id == video_id))
+    await db.commit()
+
+async def get_video(
+        db: AsyncSession,
+        video_id: int
+):
+    result = await db.execute(select(models.Video).where(models.Video.id == video_id))
+    video = result.scalars().first()
+    return video
 

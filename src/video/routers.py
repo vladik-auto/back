@@ -82,6 +82,7 @@ async def websocket_output(websocket: WebSocket):
                 # async with Session.post('http://<YOLO_server_address>', data=img_file) as resp:
                 #     response = await resp.read()
                 # это просто для дебага
+                print(img_file)
                 await websocket.send_text(str(next(video_gen)))
 
     except Exception as e:
