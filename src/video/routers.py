@@ -84,8 +84,8 @@ async def websocket_output(websocket: WebSocket):
                 # это просто для дебага
                 await websocket.send_text(str(next(video_gen)))
 
-    except Exception:
-        print("websocket disconnected")
+    except Exception as e:
+        print(f"websocket disconnected{e}")
         await websocket.close()
 
 @router.websocket("/ws/videooutput")
