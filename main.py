@@ -26,7 +26,7 @@ async def add_cors_headers(request, call_next):
     return response
 
 origins = [
-
+    "http://192.168.0.1.254:5173"
     "http://localhost:5173",
 ]
 
