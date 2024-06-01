@@ -73,22 +73,19 @@ video_gen = mock_video()
 
 
 @router.websocket("/ws/videoinput")
-async def websocket_input(websocket: WebSocket):
+async def websocket_output(websocket: WebSocket):
     await websocket.accept()
     try:
-        async with aiohttp.ClientAsyncSessions() as AsyncSession:
+        async with aiohttp.ClientSession() as Session:
             while True:
                 img_file = await websocket.receive_text()
-
-                # async with AsyncSessions.post('http://<YOLO_server_address>', data=img_file) as resp:
+                # async with Session.post('http://<YOLO_server_address>', data=img_file) as resp:
                 #     response = await resp.read()
-                #это просто для дебага
+                # это просто для дебага
                 await websocket.send_text(str(next(video_gen)))
 
     except Exception:
         print("websocket disconnected")
-        await websocket.close()
-    finally:
         await websocket.close()
 
 @router.websocket("/ws/videooutput")
@@ -97,17 +94,16 @@ async def websocket_output(websocket: WebSocket):
     try:
         async with aiohttp.ClientSession() as Session:
             while True:
-                img_file = await websocket.receive_bytes()
+                img_file = await websocket.receive_text()
                 # async with Session.post('http://<YOLO_server_address>', data=img_file) as resp:
                 #     response = await resp.read()
                 # это просто для дебага
                 await websocket.send_text(str(next(video_gen)))
 
-    except Exception as e:
-        print(f"websocket disconnected for reason{e}")
+    except Exception:
+        print("websocket disconnected")
         await websocket.close()
-    finally:
-        await websocket.close()
+
 # @router.post("/", response_model=GetVideo)
 # async def create_video(
 #         title: str = Form(...),
