@@ -32,8 +32,8 @@ class AttributeMixin:
 
 class Video(Base, AttributeMixin):
     __tablename__ = "video"
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"))
     title: Mapped[str]
-    url = Mapped[str]
     description: Mapped[str]
 
 
@@ -41,12 +41,29 @@ class VideoViolations(Base):
     __tablename__ = "video_violation"
     video_id: Mapped[int] = mapped_column(ForeignKey("video.id"), primary_key=True)
     violation_id: Mapped[int] = mapped_column(ForeignKey("violation.id"), primary_key=True)
-
+    is_spectated: Mapped[bool] = mapped_column(default=False)
     created_at = created_at
 
 
 class Violations(Base, AttributeMixin):
     __tablename__ = "violation"
-    video_id: Mapped[int] = mapped_column(ForeignKey("video.id"))
+
     name: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str]
+
+
+class Employee(Base, AttributeMixin):
+    __tablename__ = "employee"
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    middle_name: Mapped[str] = mapped_column(nullable=False)
+    last_name: Mapped[str] = mapped_column(nullable=False)
+    class Config:
+        from_attributes = True
+
+
+class EmployeeViolations(Base, AttributeMixin):
+    __tablename__ = "employee_violation"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    violation_id: Mapped[int] = mapped_column(ForeignKey("violation.id"))
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"))
+    created_at = created_at

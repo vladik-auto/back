@@ -1,5 +1,5 @@
 import aiohttp
-from fastapi import FastAPI as FastAPIOffline
+from fastapi_offline import FastAPIOffline as FastAPIOffline
 import uvicorn
 from src.auth.routers import router as router_auth
 from src.video.routers import router as router_video
