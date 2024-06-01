@@ -1,7 +1,7 @@
 from asyncio import sleep
 from fastapi.exceptions import HTTPException
 from typing import Annotated, List
-
+from random import randint
 from fastapi import APIRouter
 import aiohttp
 from fastapi import BackgroundTasks
@@ -58,14 +58,20 @@ async def del_violation(violation_id : int, db: AsyncSession = Depends(get_db)):
     await services.delete_violation(db=db, violation_id=violation_id)
 
 
-
+def random_video():
+    return randint(0, 10)
 
 
 
 def mock_video():
     i = 0
+
+
     while True:
-        yield i
+        random = randint(0, 10)
+        mockdata = True if random > 9 else False
+        yield {i:mockdata}
+
         i += 1
 
 
