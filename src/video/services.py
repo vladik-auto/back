@@ -6,7 +6,7 @@ from uuid import uuid4
 from fastapi import UploadFile, HTTPException
 from fastapi.background import BackgroundTasks
 
-from src.video.schemas import Employee as EmployeeSchema
+from src.video.schemas import Employee as EmployeeSchema, Employee, Violation, Video
 from src.video import models
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.video.schemas import UploadVideo
@@ -127,4 +127,70 @@ async def get_video(
     result = await db.execute(select(models.Video).where(models.Video.id == video_id))
     video = result.scalars().first()
     return video
+
+async def update_video(
+        db: AsyncSession,
+        db_video: models.Video,
+        video: UploadVideo
+):
+    db_video.title = video.title
+    db_video.description = video.description
+    await db.commit()
+    await db.refresh(db_video)
+    return db_video
+
+async def get_videos(
+        db: AsyncSession
+):
+    result = await db.execute(select(models.Video))
+    videos = result.scalars().all()
+    return videos
+
+async def get_vialations(
+        db: AsyncSession,
+
+):
+    result = await db.execute(select(models.Violations))
+    violations = result.scalars().all()
+    return violations
+
+async def get_violation(
+        db: AsyncSession,
+        violation_id: int
+):
+    result = await db.execute(select(models.Violations).where(models.Violations.id == violation_id))
+    violation = result.scalars().first()
+    return violation
+
+async def get_employee(
+        db: AsyncSession,
+        employee_id: int
+):
+    result = await db.execute(select(models.Employee).where(models.Employee.id == employee_id))
+    employee = result.scalars().first()
+    return employee
+
+async def update_employee(
+        db: AsyncSession,
+        db_employee: models.Employee,
+        employee: Employee
+):
+
+    db_employee.first_name = employee.first_name
+    db_employee.middle_name = employee.middle_name
+    db_employee.last_name = employee.last_name
+    await db.commit()
+    await db.refresh(db_employee)
+    return db_employee
+
+async def update_violation(
+        db: AsyncSession,
+        db_violation: models.Violations,
+        violation: Violation
+):
+    db_violation.name = violation.name
+    db_violation.description = violation.description
+    await db.commit()
+    await db.refresh(db_violation)
+    return db_violation
 

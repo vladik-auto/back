@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[schemas.Employee])
+@router.get("/employees", response_model=list[schemas.Employee])
 async def get_employees(
         db: AsyncSession = Depends(get_db)
 ):
@@ -55,7 +55,11 @@ async def get_violations(db: AsyncSession = Depends(get_db)):
     return scalar
 @router.delete("/del_violations/{violation_id}", response_model=schemas.DeletedResponse)
 async def del_violation(violation_id : int, db: AsyncSession = Depends(get_db)):
+
+    if await services.get_violation(db, violation_id=violation_id) is None:
+        raise HTTPException(status_code=404, detail="Violation not found")
     await services.delete_violation(db=db, violation_id=violation_id)
+    return schemas.DeletedResponse()
 
 
 def random_video():
@@ -125,13 +129,13 @@ async def websocket_output(websocket: WebSocket):
 
 
 @router.get("/videos/", response_model=List[schemas.Video])
-def read_videos(skip: int=0, limit: int=100, db: AsyncSession = Depends(get_db)):
-    return services.get_videos(db, skip=skip, limit=limit)
+async def read_videos(db: AsyncSession = Depends(get_db)):
+    return await services.get_videos(db)
 
 
 @router.get("/videos/{video_id}", response_model=schemas.Video)
-def read_video(video_id: int, db: AsyncSession = Depends(get_db)):
-    video = services.get_video(db, video_id=video_id)
+async def read_video(video_id: int, db: AsyncSession = Depends(get_db)):
+    video = await services.get_video(db, video_id=video_id)
     if video is None:
         raise HTTPException(status_code=404, detail="Video not found")
     return video
@@ -142,10 +146,16 @@ def read_video(video_id: int, db: AsyncSession = Depends(get_db)):
 # def read_violations(skip: int=0, limit: int=100, db: AsyncSession = Depends(get_db)):
 #     return services.get_violations(db, skip=skip, limit=limit)
 
+@router.get("/violations/", response_model=List[schemas.Violation])
+async def read_violations(db: AsyncSession = Depends(get_db)):
+    violation = await services.get_violations(db)
+    if violation is None:
+        raise HTTPException(status_code=404, detail="Violation not found")
+    return violation
 
-@router.get("/violations/{violation_id}", response_model=schemas.Violation)
-def read_violation(violation_id: int, db: AsyncSession = Depends(get_db)):
-    violation = services.get_violation(db, violation_id=violation_id)
+@router.get("/violation/{violation_id}", response_model=schemas.Violation)
+async def read_violation(violation_id: int, db: AsyncSession = Depends(get_db)):
+    violation = await services.get_violation(db, violation_id=violation_id)
     if violation is None:
         raise HTTPException(status_code=404, detail="Violation not found")
     return violation
@@ -157,9 +167,9 @@ def read_violation(violation_id: int, db: AsyncSession = Depends(get_db)):
 #     return services.get_employees(db, skip=skip, limit=limit)
 
 
-@router.get("/employees/{employee_id}", response_model=schemas.Employee)
-def read_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
-    employee = services.get_employee(db, employee_id=employee_id)
+@router.get("/employee/{employee_id}", response_model=schemas.Employee)
+async def read_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
+    employee = await services.get_employee(db, employee_id=employee_id)
     if employee is None:
         raise HTTPException(status_code=404, detail="Employee not found")
     return employee
@@ -167,46 +177,46 @@ def read_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
 
 # Update and delete routes for Video
 @router.put("/videos/{video_id}", response_model=schemas.Video)
-def update_video(video_id: int, video: schemas.Video, db: AsyncSession = Depends(get_db)):
-    db_video = services.get_video(db, video_id=video_id)
+async def update_video(video_id: int, video: schemas.Video, db: AsyncSession = Depends(get_db)):
+    db_video = await services.get_video(db, video_id=video_id)
     if db_video is None:
         raise HTTPException(status_code=404, detail="Video not found")
-    return services.update_video(db, db_video=db_video, video=video)
+    return services.update_video(db, db_video=video.db_video, video=video.video)
 
 @router.delete("/videos/{video_id}", response_model=schemas.Video)
-def delete_video(video_id: int, db: AsyncSession = Depends(get_db)):
-    db_video = services.get_video(db, video_id=video_id)
+async def delete_video(video_id: int, db: AsyncSession = Depends(get_db)):
+    db_video = await services.get_video(db, video_id=video_id)
     if db_video is None:
         raise HTTPException(status_code=404, detail="Video not found")
-    return services.delete_video(db, db_video=db_video)
+    return services.delete_video(db, video_id=video_id)
 
 
 # Update and delete routes for Violation
 @router.put("/violations/{violation_id}", response_model=schemas.Violation)
-def update_violation(violation_id: int, violation: schemas.Violation, db: AsyncSession = Depends(get_db)):
-    db_violation = services.get_violation(db, violation_id=violation_id)
+async def update_violation(violation_id: int, violation: schemas.Violation, db: AsyncSession = Depends(get_db)):
+    db_violation = await services.get_violation(db, violation_id=violation_id)
     if db_violation is None:
         raise HTTPException(status_code=404, detail="Violation not found")
     return services.update_violation(db, db_violation=db_violation, violation=violation)
 
 @router.delete("/violations/{violation_id}", response_model=schemas.Violation)
-def delete_violation(violation_id: int, db: AsyncSession = Depends(get_db)):
-    db_violation = services.get_violation(db, violation_id=violation_id)
+async def delete_violation(violation_id: int, db: AsyncSession = Depends(get_db)):
+    db_violation = await services.get_violation(db, violation_id=violation_id)
     if db_violation is None:
         raise HTTPException(status_code=404, detail="Violation not found")
-    return services.delete_violation(db, db_violation=db_violation)
+    return services.delete_violation(db, violation_id=violation_id)
 
 
 # Update and delete routes for Employee
 @router.put("/employees/{employee_id}", response_model=schemas.Employee)
-def update_employee(employee_id: int, employee: schemas.Employee, db: AsyncSession = Depends(get_db)):
+async def update_employee(employee_id: int, employee: schemas.Employee, db: AsyncSession = Depends(get_db)):
     db_employee = services.get_employee(db, employee_id=employee_id)
     if db_employee is None:
         raise HTTPException(status_code=404, detail="Employee not found")
-    return services.update_employee(db, db_employee=db_employee, employee=employee)
+    return services.update_employee(db, db_employee=db_employee)
 
 @router.delete("/employees/{employee_id}", response_model=schemas.Employee)
-def delete_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
     db_employee = services.get_employee(db, employee_id=employee_id)
     if db_employee is None:
         raise HTTPException(status_code=404, detail="Employee not found")
